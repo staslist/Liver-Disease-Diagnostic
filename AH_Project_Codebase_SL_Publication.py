@@ -2,7 +2,10 @@
 """
 Created on Mon Jun  3 17:06:52 2019
 
-@author: Stanislav
+@author: Stanislav Listopad
+The code below was used to read-in and parse RNAseq counts from Cuffnorm/Cuffdiff files. To perform classification of these counts 
+in a supervised (labeled) manner. Both liver tissue and PBMC datasets were evaluated using nested cross validation.
+Liver tissue data was validated in an independent dataset.
 """
 
 ''' Style conventions 
@@ -170,6 +173,7 @@ p_grid_dict = {'LR': p_grid_LR, 'kNN': p_grid_kNN, 'SVM': p_grid_SVM, 'DT': p_gr
                'RF': p_grid_RF, 'Ada': p_grid_Ada, 'GNB': {}}
 
 def count_elements_in_2dlist(a:list):
+    # Count number of elements in a 2-dimensional list. Return result as a dictionary.
     result = {}
     for collection in a:
         for ele in collection:
@@ -199,6 +203,7 @@ def two_dim_list_len(two_dim_list:list)->int:
     return length
 
 def read_in_csv_file_one_column(filename:str, column:int, delim:str, skip_n = 0, limit = None)->list:
+    # Read in the selected column froma csv file.
     temp = []
     with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=delim)
@@ -765,6 +770,7 @@ def read_cuffdiff_counts2(filename: str, conditions:"list or 'ALL'" = 'ALL', log
     return counts
 
 def generate_CV_split_cuffdiff(cv_k:int, fnames:list, sample_order:list):
+    # Splits the data for cross-validation using existing Cuffdiff files.
     index_outer = 0
     outer_cv_split = []
     while index_outer < cv_k:
@@ -797,6 +803,7 @@ def generate_CV_split_cuffdiff(cv_k:int, fnames:list, sample_order:list):
 
 def generate_top_DE_features(fname_in:str, num_features:int, feature_names:list, fname_out:str, num_conditions:int,
                              taboo_features:list = [], q_value:float = 0.05, fpkm:float = 1.0):
+    # Generates top differential expression features using Cuffdiff's gene_exp.diff file.
     '''Assume there is <= 9 conditions.'''
     i = 1 
     DE_dati = {}
@@ -864,6 +871,7 @@ def generate_top_DE_features(fname_in:str, num_features:int, feature_names:list,
 
 def generate_top_SFS_features(X, Y, feature_names:list, num_features:int, fname:str, model_name:str,
                               hyper_params:dict, taboo_features:list = []):
+    # Generate top sequential feature selection features.
     print("In generate top SFS features.")
     if(model_name == 'Ada'):model = AdaBoostClassifier(**hyper_params)
     elif(model_name == 'RF'):model = RandomForestClassifier(**hyper_params)
@@ -887,6 +895,7 @@ def generate_top_SFS_features(X, Y, feature_names:list, num_features:int, fname:
             i += 1
 
 def generate_top_RF_features(X, Y, feature_names, num_features, fname, taboo_features = []):
+    # Generate top random forest features.
     model = RandomForestClassifier()
     clf = model.fit(X, Y)
     RF = clf.feature_importances_
@@ -915,6 +924,7 @@ def generate_top_RF_features(X, Y, feature_names, num_features, fname, taboo_fea
     return top_gene_features
 
 def generate_top_IG_features(X, Y, feature_names, num_features, fname, taboo_features = []):
+    # Generate top information gain features.
     '''For fname provide full directory.'''
     # IG Feature Ranking Block
     IG = mutual_info_classif(X, Y)
@@ -946,6 +956,7 @@ def generate_top_IG_features(X, Y, feature_names, num_features, fname, taboo_fea
     return top_gene_features
 
 def verify_nested_cross_val_cuffdiff(root_dir:str, samples_expected:list):
+    # Verify that the nested cross validation setup is valid as demonstrated within cuffdiff files.
     sample_names = []
     fdir = root_dir + 'Cuffdiff_GEOM_POOL/'
     fname = fdir + 'read_groups.info'
@@ -1049,6 +1060,7 @@ def verify_nested_cross_val_cuffdiff(root_dir:str, samples_expected:list):
     # this should be sufficient to establish that the outer and inner splits were performed correctly. 
     
 def generate_X_Y_from_cuffdiff(input_dir:str, conditions, log_transform:bool, fpkm_norm:bool, feature_superset:list = None):
+    # Generate X (counts data) and Y (labels) matrices.
     
     # Read in X, Y.
     fname = input_dir + 'genes.read_group_tracking'
