@@ -1,6 +1,7 @@
 # Liver-Disease-Diagnostic
 Machine learning codebase for 'Multiclass machine learning diagnostic for liver diseases by transcriptomics of 
 peripheral blood mononuclear cells or liver tissue' publication in JHEP Reports.
+DOI: https://doi.org/10.1016/j.jhepr.2022.100560
 
 ABSTRACT 
 
